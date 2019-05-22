@@ -13,6 +13,20 @@ ifeq ($(BUILD_NUMBER),)
 endif
 BUILD_WEBAPP_DIR ?= ../vchat-webapp
 
+# Golang Flags
+GOPATH ?= $(shell go env GOPATH)
+GOFLAGS ?= $(GOFLAGS:)
+GO=go
+DELVE=dlv
+
+PLATFORM_FILES="./cmd/mattermost/main.go"
+
+# Output paths
+DIST_ROOT=dist
+DIST_PATH=$(DIST_ROOT)/mattermost
+
+# Tests
+TESTS=.
 
 start-docker: ## Starts the docker containers for local development.
 ifeq ($(IS_CI),false)
@@ -23,4 +37,4 @@ run-server: start-docker ## Starts the server.
 	@echo Running mattermost for development
 
 	mkdir -p $(BUILD_WEBAPP_DIR)/dist/files
-
+	$(GO) run $(GOFLAGS) -ldflags '$(LDFLAGS)' $(PLATFORM_FILES)
