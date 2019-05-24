@@ -59,6 +59,35 @@ DIST_PATH=$(DIST_ROOT)/mattermost
 # Tests
 TESTS=.
 
+TESTFLAGS ?= -short
+TESTFLAGSEE ?= -short
+
+# Packages lists
+TE_PACKAGES=$(shell go list ./...|grep -v plugin_tests)
+
+# Prepare the enterprise build if exists. The IGNORE stuff is a hack to get the Makefile to exeute the commands outside a target
+ifeq ($(BUILD_ENTERPRISE_READY),true)
+	IGNORE:=$(shell echo Enterprise build selected, preparing)
+	IGNORE:=$(shell rm -f imports/imports.go)
+	INGORE:=$(shell cp $(BUILD_ENTERPRISE_DIR)/imports/imports.go imports/)
+	IGNORE:=$(shell rm -f enterprise)
+	IGNORE:=$(shell ln -s $(BUILD_ENTERPRISE_DIR) enterprise)
+else
+	IGNORE:=$(shell rm -f imports/imports.go)
+endif
+
+EE_PACKAGES=$(shell go list ./enterprise/...)
+
+ifeq ($(BUILD_ENTERPRISE_READY),true)
+	ALL_PACKAGES=$(TE_PACKAGES) $(EE_PACKAGES)
+else
+	ALL_PACKAGES=$(TE_PACKAGES)
+endif
+
+all: run ## Alias for 'run'.
+
+include build/*.mk
+
 install:
 	@echo You must be root to install
 
