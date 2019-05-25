@@ -1,38 +1,79 @@
 package model
 
+import "crypto/tls"
+
 const (
-	ME                  = "me"
-	USER_NOTIFY_ALL     = "all"
-	USER_NOTIFY_MENTION = "mention"
-
-	DEFAULT_LOCALE          = "en"
-	USER_AUTH_SERVICE_EMAIL = "email"
-
-	USER_EMAIL_MAX_LENGTH     = 128
-	USER_NICKNAME_MAX_RUNES   = 64
-	USER_POSITION_MAX_RUNES   = 128
-	USER_FIRST_NAME_MAX_RUNES = 64
-	USER_LAST_NAME_MAX_RUNES  = 64
-	USER_AUTH_DATA_MAX_LENGTH = 128
-	USER_NAME_MAX_LENGTH      = 64
-	USER_NAME_MIN_LENGTH      = 64
-	USER_PASSWORD_MAX_LENGTH  = 72
-	USER_LOCALE_MAX_LENGTH    = 5
+	CONN_SECURITY_NONE     = ""
+	CONN_SECURITY_PLAIN    = "PLAIN"
+	CONN_SECURITY_TLS      = "TLS"
+	CONN_SECURITY_STARTTLS = "STARTTLS"
 )
 
-type User struct {
-	Id        string `json:"id"`
-	CreatedAt int64  `json:"created_at,omitempty"`
-	UpdatedAt int64  `json:"updated_at,omitempty"`
+var ServerTLSSupportedCiphers = map[string]uint16{
+	"TLS_RSA_WITH_RC4_128_SHA": tls.TLS_RSA_WITH_RC4_128_SHA,
 }
 
-type UserPatch struct {
-	Username *string `json:"username"`
+type ServiceSettings struct {
 }
 
-type UserAuth struct {
-	Password string  `json:"password,omitempty"`
-	AuthData *string `json:"auth_data,omitempty"`
+type ClusterSettings struct {
+}
+
+type MetricsSettings struct {
+}
+
+type ExperimentalSettings struct {
+}
+
+type AnalyticsSettings struct {
+}
+
+type SSOSettings struct {
+}
+
+type SqlSettings struct {
+}
+
+type LogSettings struct {
+}
+
+type NotificationLogSettings struct {
+}
+
+type PasswordSettings struct {
+}
+
+type FileSettings struct {
+}
+
+type EmailSettings struct {
+}
+
+type RateLimitSettings struct {
+}
+
+type PrivacySettings struct {
+}
+
+type SupportSettings struct {
+}
+
+type AnnouncementSettings struct {
+}
+
+type ThemeSettings struct {
+}
+
+type TeamSettings struct {
+}
+
+type ClientRequirements struct {
+}
+
+type LdapSettings struct {
+}
+
+type ComplianceSettings struct {
 }
 
 type LocalizationSettings struct {
@@ -63,4 +104,46 @@ type SamlSettings struct {
 
 	Verify  *bool
 	Encrypt *bool
+}
+type NativeAppSettings struct {
+}
+
+type ElasticSearchSettings struct {
+}
+
+type DataRetentionSettings struct {
+}
+
+type JobSettings struct {
+
+}
+
+type PluginState struct {
+
+}
+
+type PluginSettings struct {
+
+}
+
+type GlobalRelayMessageExportSettings struct {
+
+}
+
+type MessageExportSettings struct {
+
+}
+
+type DisplaySettings struct {
+
+}
+
+type ImageProxySettings struct {
+
+}
+
+type ConfigFunc func() *Config
+
+type Config struct {
+
 }
