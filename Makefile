@@ -172,6 +172,105 @@ else
 	@echo CI Build: skipping docker start
 endif
 
+stop-docker: ## Stops the docker Containers for local development.
+	@echo Stopping docker containers
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-mysql$$ | wc -l) -eq 1 ]; then \
+		echo stopping mattermost-mysql; \
+		docker stop mattermost-mysql > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-mysql-unittest$$ | wc -l) -eq 1 ]; then \
+  	echo stopping mattermost-mysql-unittest; \
+  	docker stop mattermost-mysql-unittest; > /dev/null; \
+  fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-postgres$$ | wc -l) -eq 1 ]; then \
+		echo stopping mattermost-postgres; \
+		docker stop mattermost-postgres > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-postgres-unittest$$ | wc -l) -eq 1 ]; then \
+		echo stopping mattermost-postgres-unittest; \
+		docker stop mattermost-postgres-unittest > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-openldap$$ | wc -l) -eq 1 ]; then \
+		echo stopping mattermost-openldap; \
+		docker stop mattermost-openldap > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-inbucket$$ | wc -l) -eq 1 ]; then \
+		echo stopping mattermost-inbucket; \
+		docker stop mattermost-inbucket > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-minio$$ | wc -l) -eq 1 ]; then \
+		echo stopping mattermost-minio; \
+		docker stop mattermost-minio > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-elasticsearch$$ | wc -l) -eq 1 ]; then \
+		echo stopping mattermost-elasticsearch; \
+		docker stop mattermost-elasticsearch > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-redis$$ | wc -l) -eq 1 ]; then \
+		echo stopping mattermost-redis; \
+		docker stop mattermost-redis > /dev/null; \
+	fi
+
+clean-docker: ## Deletes the docker containers for local development.
+	@echo Removing docker containers
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-mysql$$ | wc -l) -eq 1 ]; then \
+		echo Removing mattermost-mysql; \
+		docker stop mattermost-mysql > /dev/null; \
+		docker rm -v mattermost-mysql > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-mysql-unittest$$ | wc -l) -eq 1 ]; then \
+		echo Removing mattermost-mysql-unittest; \
+		docker stop mattermost-mysql-unittest > /dev/null; \
+		docker rm -v mattermost-mysql-unittest > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-postgres$$ | wc -l) -eq 1 ]; then \
+		echo Removing mattermost-postgres; \
+		docker stop mattermost-postgres > /dev/null; \
+		docker rm -v mattermost-postgres > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-postgres-unittest$$ | wc -l) -eq 1 ]; then \
+		echo removing mattermost-postgres-unittest; \
+		docker stop mattermost-postgres-unittest > /dev/null; \
+		docker rm -v mattermost-postgres-unittest > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a --no-trunc --quiet --filter name=^/mattermost-openldap$$ | wc -l) -eq 1 ]; then \
+		echo Removing mattermost-openldap; \
+		docker stop mattermost-openldap > /dev/null; \
+		docker rm -v mattermost-openldap > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a | grep -ci mattermost-inbucket) -eq 1 ]; then \
+		echo removing mattermost-inbucket; \
+		docker stop mattermost-inbucket > /dev/null; \
+		docker rm -v mattermost-inbucket > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a | grep -ci mattermost-minio) -eq 1 ]; then \
+		echo removing mattermost-minio; \
+		docker stop mattermost-minio > /dev/null; \
+		docker rm -v mattermost-minio > /dev/null; \
+	fi
+
+	@if [ $(shell docker ps -a | grep -ci mattermost-elasticsearch) -eq 1 ]; then \
+		echo removing mattermost-elasticsearch; \
+		docker stop mattermost-elasticsearch > /dev/null; \
+		docker rm -v mattermost-elasticsearch > /dev/null; \
+	fi
+
 govet: ## Runs govet against all packages.
 	@echo Running GOVET
 	$(GO) get golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
@@ -208,8 +307,9 @@ run-server: start-docker ## Starts the server.
 	@echo Running mattermost for development
 
 	mkdir -p $(BUILD_WEBAPP_DIR)/dist/files
-	$(GO) run $(GOFLAGS) -ldflags '$(LDFLAGS)' $(PLATFORM_FILES) --disableconfigwatch | \
-	    $(GO) run $(GOFLAGS) -ldflags '$(LDFLAGS)' $(PLATFORM_FILES) logs --logrus &
+	$(GO) run $(GOFLAGS) -ldflags '$(LDFLAGS)' $(PLATFORM_FILES) --disableconfigwatch
+
+## $(GO) run $(GOFLAGS) -ldflags '$(LDFLAGS)' $(PLATFORM_FILES) logs --logrus
 
 
 run-client: ## Runs the webapp.

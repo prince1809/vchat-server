@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mattermost/mattermost-server/utils/fileutils"
 	"os"
+	"syscall"
 )
 
 func main() {
@@ -22,5 +23,11 @@ The platform binary will be removed in a future version.
 	realMattermost := fileutils.FindFile("mattermost")
 	if realMattermost == "" {
 		realMattermost = fileutils.FindFile("bin/mattermost")
+	}
+
+	if realMattermost == "" {
+		fmt.Println("Could not start Mattermost, use the mattermost command directly:")
+	} else if err := syscall.Exec(realMattermost, args, nil); err != nil {
+		fmt.Printf("Could not start Mattermost, use the mattermost command directly: %s\n", err.Error())
 	}
 }
