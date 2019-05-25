@@ -49,6 +49,14 @@ GOPATH ?= $(shell go env GOPATH)
 GOFLAGS ?= $(GOFLAGS:)
 GO=go
 DELVE=dlv
+LDFLAGS += -X "github.com/prince1809/mattermost-server/model.BuildNumber=$(BUILD_NUMBER)"
+LDFLAGS += -X "github.com/prince1809/mattermost-server/model.BuildDate=$(BUILD_DATE)"
+LDFLAGS += -X "github.com/prince1809/mattermost-server/model.BuildHash=$(BUILD_HASH)"
+LDFLAGS += -X "github.com/prince1809/mattermost-server/model.BuildHashEnterprise=$(BUILD_HASH_ENTERPRISE)"
+LDFLAGS += -X "github.com/prince1809/mattermost-server/model.BuildEnterpriseReady=$(BUILD_ENTERPRISE_READY)"
+
+# GOOS/GOARCH of the build host, used to determine whether we're cross-compiling or not
+BUILDER_GOOS_ARCH="$(shell $(GO) env GOOS)_$(shell $(GO) env GOARCH)"
 
 PLATFORM_FILES="./cmd/mattermost/main.go"
 
@@ -64,6 +72,9 @@ TESTFLAGSEE ?= -short
 
 # Packages lists
 TE_PACKAGES=$(shell go list ./...|grep -v plugin_tests)
+
+# Plugins Packages
+PLUGIN_PACKAGES=mattermost-plugin-zoom mattermost-plugin-jira
 
 # Prepare the enterprise build if exists. The IGNORE stuff is a hack to get the Makefile to exeute the commands outside a target
 ifeq ($(BUILD_ENTERPRISE_READY),true)
@@ -88,8 +99,6 @@ all: run ## Alias for 'run'.
 
 include build/*.mk
 
-install:
-	@echo You must be root to install
 
 start-docker: ## Starts the docker containers for local development.
 ifeq ($(IS_CI),false)
@@ -163,9 +172,48 @@ else
 	@echo CI Build: skipping docker start
 endif
 
+govet: ## Runs govet against all packages.
+	@echo Running GOVET
+	$(GO) get golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
+	$(GO) vet $(GOFLAGS) $(ALL_PACKAGES) || exit 1
+	$(GO) vet -vettool=$(GOPATH)/bin/shadow $(GOFLAGS) $(ALL_PACKAGES) || exit 1
+
+gofmt: ## Runs gofmt against all packages
+	@echo Running GOFMT
+
+	@for package in $(TE_PACKAGES); do \
+		echo "Checking " $$package; \
+		files=$$(go list -f '{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}}' $$package); \
+		if [ "$$files" ]; then \
+			gofmt_output=$$(); \
+			if [ "$$gofmt_output" ]; then \
+				echo "$$gofmt_output"; \
+				echo "gofmt failure"; \
+				exit 1; \
+			fi; \
+		fi; \
+	done
+	@echo "gofmt success"; \
+
+ifeq ($(BUILD_ENTERPRISE_READY), true)
+	$(GOPATH)/bin/megacheck $(EE_PACKAGES) || exit 1
+endif
+
+test-data: start-docker ## Add test data to the local instance.
+	$(GO) run $(GOFLAGS) -ldflags '$(LDFLAGS)' $(PLATFORM_FILES) sampledata -w 1
+
+	@echo You may need to restart the Mattermost server before using the folli
+
 run-server: start-docker ## Starts the server.
 	@echo Running mattermost for development
 
 	mkdir -p $(BUILD_WEBAPP_DIR)/dist/files
 	$(GO) run $(GOFLAGS) -ldflags '$(LDFLAGS)' $(PLATFORM_FILES) --disableconfigwatch | \
-		$(GO) run $(GOFLAGS) -ldflags '$(LDFLAGS)' $(PLATFORM_FILES) logs --logrus &
+	    $(GO) run $(GOFLAGS) -ldflags '$(LDFLAGS)' $(PLATFORM_FILES) logs --logrus &
+
+
+run-client: ## Runs the webapp.
+	@echo Running mattermost client for development
+
+	ln -nfs $(BUILD_WEBAPP_DIR)/dist clean
+	cd $(BUILD_WEBAPP_DIR) && $(MAKE) run
