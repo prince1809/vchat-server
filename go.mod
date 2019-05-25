@@ -18,6 +18,6 @@ require (
 	github.com/throttled/throttled v2.2.4+incompatible
 	golang.org/x/sys v0.0.0-20190522044717-8097e1b27ff5 // indirect
 	golang.org/x/text v0.3.2 // indirect
-	golang.org/x/tools v0.0.0-20190524210228-3d17549cdc6b // indirect
+	golang.org/x/tools v0.0.0-20190525145741-7be61e1b0e51 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )

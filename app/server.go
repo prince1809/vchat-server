@@ -37,6 +37,8 @@ type Server struct {
 
 	Hubs                        []*Hub
 	HubsStopCheckingForDeadlock chan bool
+
+	PushNotificationHub PushNotificationHub
 }
 
 func NewServer(options ...Option) (*Server, error) {
