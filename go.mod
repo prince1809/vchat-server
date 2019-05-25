@@ -15,7 +15,7 @@ require (
 	github.com/spf13/cobra v0.0.4
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
-	github.com/throttled/throttled v2.2.4+incompatible // indirect
+	github.com/throttled/throttled v2.2.4+incompatible
 	golang.org/x/sys v0.0.0-20190522044717-8097e1b27ff5 // indirect
 	golang.org/x/text v0.3.2 // indirect
 	golang.org/x/tools v0.0.0-20190524210228-3d17549cdc6b // indirect
