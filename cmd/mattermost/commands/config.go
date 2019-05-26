@@ -26,6 +26,12 @@ func configValidateCmdF(command *cobra.Command, args []string) error {
 	model.AppErrorInit(utils.T)
 
 	_, err := getConfigStore(command)
+	if err != nil {
+		return err
+	}
+
+	CommandPrettyPrintln("The document is valid")
+	return nil
 }
 
 func getConfigStore(command *cobra.Command) (config.Store, error) {
@@ -35,5 +41,10 @@ func getConfigStore(command *cobra.Command) (config.Store, error) {
 
 	configDSN := viper.GetString("config")
 
-	configStore, err := config.Ne
+	configStore, err := config.NewStore(configDSN, false)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to initialize config store")
+	}
+
+	return configStore, nil
 }

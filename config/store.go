@@ -17,6 +17,7 @@ type Store interface {
 // NewStore creates a database or file store given a data source name by which to connect.
 func NewStore(dsn string, watch bool) (Store, error) {
 	if strings.HasPrefix(dsn, "mysql://") || strings.HasPrefix(dsn, "postges://") {
-		return NewDatabaseStore()
+		return NewDatabaseStore(dsn)
 	}
+	return NewDatabaseStore(dsn)
 }
