@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"github.com/mattermost/viper"
 	"github.com/spf13/cobra"
 )
@@ -9,7 +8,6 @@ import (
 type Command = cobra.Command
 
 func Run(args []string) error {
-	fmt.Println("Arguments:", args)
 	RootCmd.SetArgs(args)
 	return RootCmd.Execute()
 }

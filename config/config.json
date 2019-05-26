@@ -1,0 +1,9 @@
+{
+  "ServiceSettings": {
+    "SiteURL": "http://localhost:8065",
+    "WebSocketURL": "",
+    "LicenseFileLocation": "",
+    "ListenAddress": ":8065",
+    "ConnectionSecurity": ""
+  }
+}

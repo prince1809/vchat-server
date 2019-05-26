@@ -21,6 +21,24 @@ var ValidateConfigCmd = &cobra.Command{
 	RunE:  configValidateCmdF,
 }
 
+var ConfigSubpathCmd = &cobra.Command{
+	Use:   "subpath",
+	Short: "Update client asset loading to use the configured subpath",
+	Long:  "Update the hard-coded production client asset paths to take into account Mattermost running on a subpath.",
+	Example: `  config subpath
+	config subpath --path /mattermost
+	config subpath --path /`,
+	RunE: configSubpathCmdF,
+}
+
+func init() {
+	ConfigCmd.AddCommand(
+		ValidateConfigCmd,
+		ConfigSubpathCmd,
+	)
+	RootCmd.AddCommand(ConfigCmd)
+}
+
 func configValidateCmdF(command *cobra.Command, args []string) error {
 	utils.TranslationsPreInit()
 	model.AppErrorInit(utils.T)
@@ -31,6 +49,10 @@ func configValidateCmdF(command *cobra.Command, args []string) error {
 	}
 
 	CommandPrettyPrintln("The document is valid")
+	return nil
+}
+
+func configSubpathCmdF(commmand *cobra.Command, args []string) error {
 	return nil
 }
 

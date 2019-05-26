@@ -55,6 +55,31 @@ func (er *AppError) Error() string {
 	return er.Where + ":" + er.Message + ", " + er.DetailedError
 }
 
+func (er *AppError) Translate(T goi18n.TranslateFunc) {
+	if T == nil {
+		er.Message = er.Id
+		return
+	}
+	if er.params == nil {
+		er.Message = T(er.Id)
+	} else {
+		er.Message = T(er.Id, er.params)
+	}
+}
+
+func NewAppError(where string, id string, params map[string]interface{}, details string, status int) *AppError {
+	ap := &AppError{}
+	ap.Id = id
+	ap.params = params
+	ap.Message = id
+	ap.Where = where
+	ap.DetailedError = details
+	ap.StatusCode = status
+	ap.IsOAuth = false
+	ap.Translate(translateFunc)
+	return ap
+}
+
 var encoding = base32.NewEncoding("ybndrfg8ejkmcpqxot1uwisza345h769")
 
 // NewId is a globally unique identifier. It is a [A-Z0-9] string 26

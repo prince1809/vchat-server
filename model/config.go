@@ -1,6 +1,9 @@
 package model
 
-import "crypto/tls"
+import (
+	"crypto/tls"
+	"net/http"
+)
 
 const (
 	CONN_SECURITY_NONE     = ""
@@ -79,6 +82,34 @@ type FileSettings struct {
 }
 
 type EmailSettings struct {
+	EmailSignUpWithEmail              *bool
+	EnableSignInWithEmail             *bool
+	EnableSignInWithUsername          *bool
+	SendEmailNotifications            *bool
+	UseChannelInEmailNotifications    *bool
+	RequireEmailVerification          *bool
+	FeedbackName                      *string
+	FeedbackEmail                     *string
+	ReplyToAddress                    *string
+	FeedbackOrganization              *string
+	EnableSMTPAuth                    *bool   `restricted:"true"`
+	SMTPUsername                      *string `restricted:"true"`
+	SMTPPassword                      *string `restricted:"true"`
+	SMTPServer                        *string `restricted:"true"`
+	SMTPPort                          *string `restricted:"true"`
+	ConnectionSecurity                *string `restricted:"true"`
+	SendPushNotifications             *bool
+	PushNotificationServer            *string
+	PushNotificationContents          *string
+	EnableEmailBatching               *bool
+	EmailBatchingBufferSize           *int
+	EmailBatchingInterval             *int
+	EnablePreviewModeBanner           *bool
+	SkipServerCertificateVerification *bool `restricted:"true"`
+	EmailNotificationContentType      *string
+	LoginButtonColor                  *string
+	LoginButtonBorderColor            *string
+	LoginButtonTextColor              *string
 }
 
 type RateLimitSettings struct {
@@ -215,4 +246,12 @@ type Config struct {
 
 func (o *Config) SetDefaults() {
 
+}
+
+func (o *Config) IsValid() *AppError {
+	if len(*o.ServiceSettings.SiteURL) == 0 && *o.EmailSettings.EnableEmailBatching {
+		return NewAppError("config.IsValid", "model.config.is_valid.site_url_email_batching.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	return nil
 }

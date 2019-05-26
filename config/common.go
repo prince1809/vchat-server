@@ -86,3 +86,11 @@ func (cs *commonStore) load(f io.ReadCloser, needsSave bool, validate func(*mode
 
 	return nil
 }
+
+// validate checks if the given configuration is valid
+func (cs *commonStore) validate(cfg *model.Config) error {
+	if err := cfg.IsValid(); err != nil {
+		return err
+	}
+	return nil
+}

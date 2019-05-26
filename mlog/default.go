@@ -2,7 +2,7 @@ package mlog
 
 import (
 	"encoding/json"
-	"golang.org/x/tools/go/ssa/interp/testdata/src/fmt"
+	"fmt"
 )
 
 // defaultLog manually encodes the log to STDOUT, providing a basic, default logging implementation

@@ -61,6 +61,14 @@ func FindPath(path string, baseSearchPaths []string, filter func(info os.FileInf
 	return ""
 }
 
+// FindFile looks for the given file in nearby ancestors relative to the current working
+// directory as well as the directory of the executable.
+func FindFile(path string) string {
+	return FindPath(path, commonBaseSearchPaths, func(fileInfo os.FileInfo) bool {
+		return !fileInfo.IsDir()
+	})
+}
+
 // fileutils.FindDir looks for the given directory in nearby ancestors relative to the current working
 // directory as well as the directory of the executable, falling back to './' if not found.
 func FindDir(dir string) (string, bool) {
