@@ -1,11 +1,22 @@
 package config
 
 import (
+	"bytes"
 	"database/sql"
-	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
+	"io/ioutil"
 	"net/url"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
+
+	"github.com/prince1809/vchat-server/mlog"
+	"github.com/prince1809/vchat-server/model"
+
+	// Load the MySQL driver
+	_ "github.com/go-sql-driver/mysql"
+	// Load the Postgres driver
+	_ "github.com/lib/pq"
 )
 
 // DatabaseStore is a config store backed by a database.
@@ -107,6 +118,60 @@ func parseDSN(dsn string) (string, string, error) {
 	return scheme, dsn, nil
 }
 
+// persist writes the configuration to the configured database.
+func (ds *DatabaseStore) persist(cfg *model.Config) error {
+	b, err := marshalConfig(cfg)
+	if err != nil {
+		return errors.Wrap(err, "failed to serialize")
+	}
+
+	id := model.NewId()
+	value := string(b)
+	createAt := model.GetMillis()
+
+	tx, err := ds.db.Beginx()
+	if err != nil {
+		return errors.Wrap(err, "failed to begin transaction")
+	}
+	defer func() {
+		// Rollback after commit just returns sql.ErrTxDone.
+		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
+			mlog.Error("Failed to rollback configuration transactions", mlog.Err(err))
+		}
+	}()
+
+	params := map[string]interface{}{
+		"id":        id,
+		"value":     value,
+		"create_at": createAt,
+		"key":       "ConfigurationId",
+	}
+
+	// Skip the persist altogether if we'are effectively writing the same configuration.
+	var oldValue []byte
+	row := ds.db.QueryRow("SELECT Value FROM Configurations WHERE Active")
+	if err := row.Scan(&oldValue); err != nil && err != sql.ErrNoRows {
+		return errors.Wrap(err, "failed to query active configuration")
+	}
+	if bytes.Equal(oldValue, b) {
+		return nil
+	}
+
+	if _, err := tx.Exec("UPDATE Configurations SET Active = NULL WHERE  Active"); err != nil {
+		return errors.Wrap(err, "failed to deactivate current configuration")
+	}
+
+	if _, err := tx.NamedExec("INSERT INTO Configurations (Id, Value, CreateAt, Active) VALUES (:id, :value, :create_at, TRUE)", params); err != nil {
+		return errors.Wrap(err, "failed to record new configuration")
+	}
+
+	if err := tx.Commit(); err != nil {
+		return errors.Wrap(err, "failed to commit transaction")
+	}
+
+	return nil
+}
+
 // Load updates the current configuration from the backing store.
 func (ds *DatabaseStore) Load() (err error) {
 	var needsSave bool
@@ -121,5 +186,5 @@ func (ds *DatabaseStore) Load() (err error) {
 
 	}
 
-	return ds.commonStore.load()
+	return ds.commonStore.load(ioutil.NopCloser(bytes.NewReader(configurationData)), needsSave, ds.commonStore.validate, ds.persist)
 }
