@@ -25,6 +25,23 @@ func defaultLog(level, msg string, fields ...Field) {
 	}
 }
 
+func defaultDebugLog(msg string, fields ...Field) {
+	defaultLog("debug", msg, fields...)
+}
+
+func defaultInfoLog(msg string, fields ...Field) {
+	defaultLog("info", msg, fields...)
+}
+
+func defaultWarnLog(msg string, fields ...Field) {
+	defaultLog("warn", msg, fields...)
+}
+
 func defaultErrorLog(msg string, fields ...Field) {
+	defaultLog("error", msg, fields...)
+}
+
+func defaultCriticalLog(msg string, fields ...Field) {
+	// We map critical to error in zap, so be consistent
 	defaultLog("error", msg, fields...)
 }
