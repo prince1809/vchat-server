@@ -117,9 +117,24 @@ func (s *Server) Shutdown() error {
 	s.WaitForGoroutines()
 
 	if s.Store != nil {
-		s.Store.close()
+		s.Store.Close()
 	}
+
+	if s.htmlTemplateWatcher != nil {
+		s.htmlTemplateWatcher.Close()
+	}
+
+	s.RemoveConfigListener(s.configListenerId)
+	s.RemoveConfigListener(s.logListenerId)
+
+	s.configStore.Close()
 
 	mlog.Info("Server stopped")
 	return nil
+}
+
+func (s *Server) WaitForGoroutines() {
+	for atomic.LoadInt32(&s.goroutineCount) != 0 {
+		<-s.goroutineExitSignal
+	}
 }

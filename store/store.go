@@ -41,6 +41,14 @@ type Store interface {
 	Group() GroupStore
 	UserTermsOfService() UserAccessTokenStore
 	LinkMetadata() LinkMetadataStore
+	MarkSystemRanUnitTests()
+	Close()
+	LockToMaster()
+	UnlockFromMaster()
+	DropAllTables()
+	TotalMasterDbConnections() int
+	TotalReadDbConnections() int
+	TotalSearchDbConnections() int
 }
 
 type TeamStore interface {

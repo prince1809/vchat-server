@@ -13,7 +13,7 @@ func ServerConnector(s *Server) AppOption  {
 	return func(a *App) {
 		a.Srv = s
 
-		a.Log = s.Log
+		//a.Log = s.Log
 
 	}
 }

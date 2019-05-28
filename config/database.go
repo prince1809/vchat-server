@@ -188,3 +188,10 @@ func (ds *DatabaseStore) Load() (err error) {
 
 	return ds.commonStore.load(ioutil.NopCloser(bytes.NewReader(configurationData)), needsSave, ds.commonStore.validate, ds.persist)
 }
+
+func (ds *DatabaseStore) Close() error {
+	ds.configLock.Lock()
+	defer ds.configLock.Unlock()
+
+	return ds.db.Close()
+}

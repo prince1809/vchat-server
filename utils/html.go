@@ -7,3 +7,8 @@ type HTMLTemplateWatcher struct {
 	stop      chan struct{}
 	stopped   chan struct{}
 }
+
+func (w *HTMLTemplateWatcher) Close() {
+	close(w.stop)
+	<-w.stopped
+}

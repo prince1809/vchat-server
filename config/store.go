@@ -12,6 +12,15 @@ type Listener func(oldConfig *model.Config, newConfig *model.Config)
 type Store interface {
 	// Get fetches the current, cached configuration.
 	Get() *model.Config
+
+	// AddListener adds a callback function to invoke when the configuration is modified.
+	AddListener(listener Listener) string
+
+	// RemoveListener removes a callback function using an id returned from AddListener.
+	RemoveListener(id string)
+
+	// Close cleans up resources associated with the store.
+	Close() error
 }
 
 // NewStore creates a database or file store given a data source name by which to connect.

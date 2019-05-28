@@ -16,10 +16,11 @@ var CommandCreateCmd = &cobra.Command{
 	RunE:    createCommandCmdF,
 }
 
-func createCommandCmdF(command *cobra.Command, args []string) error  {
+func createCommandCmdF(command *cobra.Command, args []string) error {
 	a, err := InitDBCommandContextCobra(command)
 	if err != nil {
 		return err
 	}
-	defer a.shutdown()
+	defer a.Shutdown()
+	return nil
 }

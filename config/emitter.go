@@ -18,3 +18,17 @@ func (e *emitter) invokeConfigListeners(oldCfg, newCfg *model.Config) {
 		return true
 	})
 }
+
+// AddListener adds a callback function to invoke when the configuration is modified.
+func (e *emitter) AddListener(listener Listener) string {
+	id := model.NewId()
+
+	e.listeners.Store(id, listener)
+
+	return id
+}
+
+// RemoveListener removes a callback function using an id returned from AddListener
+func (e *emitter) RemoveListener(id string) {
+	e.listeners.Delete(id)
+}
